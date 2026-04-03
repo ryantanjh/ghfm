@@ -1,10 +1,12 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from api.app.repo.database import get_db, init_db, SessionLocal
 from api.app.repo.order_repository import OrderRepository
 from api.app.repo.trade_repository import TradeRepository
 from api.app.services.order_service import OrderService
+from api.app.services.trade_report_service import TradeReportService
 from api.app.models.dtos import OrderCreate, OrderResponse, TradeResponse
 from api.brokers.broker_interface import BrokerInterface
 from api.brokers.mock_broker import MockBroker
@@ -57,3 +59,14 @@ def get_trades(db: Session = Depends(get_db)) -> List[TradeResponse]:
     trade_repo = TradeRepository(db)
     trades = trade_repo.get_all_trades()
     return [TradeResponse.from_orm(trade) for trade in trades]
+
+@app.get("/trades/download")
+def download_trade_report(db: Session = Depends(get_db)) -> StreamingResponse:
+    trade_repo = TradeRepository(db)
+    trade_report_service = TradeReportService(trade_repo)
+    csv_content = trade_report_service.generate_csv_report()
+    return StreamingResponse(
+        iter([csv_content]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=trade_report.csv"}
+    )

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Button } from 'antd';
-import { ReloadOutlined } from '@ant-design/icons';
+import { Table, Card, Button, Space } from 'antd';
+import { ReloadOutlined, DownloadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 const TradesView = ({ refreshTrigger }) => {
@@ -22,6 +22,24 @@ const TradesView = ({ refreshTrigger }) => {
   useEffect(() => {
     fetchTrades();
   }, [refreshTrigger]);
+
+  const downloadTradeReport = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/trades/download', {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'trade_report.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download trade report:', error);
+    }
+  };
 
   const columns = [
     {
@@ -73,13 +91,21 @@ const TradesView = ({ refreshTrigger }) => {
     <Card
       title="Trades"
       extra={
-        <Button
-          icon={<ReloadOutlined />}
-          onClick={fetchTrades}
-          loading={loading}
-        >
-          Refresh
-        </Button>
+        <Space>
+          <Button
+            icon={<DownloadOutlined />}
+            onClick={downloadTradeReport}
+          >
+            Download Report
+          </Button>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={fetchTrades}
+            loading={loading}
+          >
+            Refresh
+          </Button>
+        </Space>
       }
     >
       <Table

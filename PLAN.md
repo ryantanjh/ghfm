@@ -64,7 +64,7 @@ Feature 2: Mock workflows
 - This order should always remain in NEW state, reason being it has failed internal validation check
 
 2. Order sent but rejected by broker
-- User has a account balance of 1 million USD
+- User has an account balance of 1 million USD
 - User creates a new order in the UI for DBS stock for IBKR at qty = 1 million which exceeds balance
 - Mock broker API returns Rejection message due "insufficient balance"
 - Update order status accordingly

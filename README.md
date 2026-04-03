@@ -128,3 +128,12 @@ The test suite includes:
 - Compare broker-reported trades against internal database records
 - Flag discrepancies for manual review (e.g., missing trades, mismatched quantities/prices)
 - Generate reconciliation reports for compliance and audit purposes
+
+## Trade File Generation for Prime Brokers and Fund Administrators
+
+**Prototype**: The UI includes a trade report export feature that generates CSV files from internal trade records. Users can download complete trade history via the Trades page.
+
+**Production**: Trade files for prime brokers and fund administrators would be generated through scheduled batch processes:
+- Automated daily/monthly reports aggregating trade activity by broker, strategy, or account
+- Standardized file formats (CSV, FIX, proprietary) based on counterparty requirements
+- Position reconciliation reports comparing internal records against prime broker statements

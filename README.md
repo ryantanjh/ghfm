@@ -2,7 +2,7 @@
 
 ## Overview
 
-This prototype demonstrates a simplified electronic trading workflow from order creation through execution. The system implements order validation, lifecycle management, simulated broker integration, and basic trade storage.
+This prototype demonstrates a simplified OMS workflow for a hedge fund. The system implements order validation, lifecycle management, simulated broker integration, and basic trade storage.
 
 ## Running the Prototype
 

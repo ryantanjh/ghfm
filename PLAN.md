@@ -74,7 +74,7 @@ Feature 2: Mock workflows
 - User gets a response for FILL
 - User should be able to see updated order status and trade records in UI
 
-3. Order Sent and Partial Fill
+4. Order Sent and Partial Fill
 - User creates a new order in the UI for DBS stock for IBKR that does not exceed account threshold
 - User gets a response for Partial fill
 - User should be able to see updated order status and trade records in UI

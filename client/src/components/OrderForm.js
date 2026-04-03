@@ -56,9 +56,12 @@ const OrderForm = ({ onOrderSubmitted }) => {
         <Form.Item
           label="Symbol"
           name="symbol"
-          rules={[{ required: true, message: 'Please enter a symbol' }]}
+          rules={[{ required: true, message: 'Please select a symbol' }]}
         >
-          <Input placeholder="e.g., AAPL, DBS" />
+          <Select placeholder="Select a symbol">
+            <Option value="AAPL">AAPL</Option>
+            <Option value="DBS">DBS</Option>
+          </Select>
         </Form.Item>
 
         <Form.Item

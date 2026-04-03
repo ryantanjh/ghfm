@@ -1,13 +1,14 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from api.app.repo.database import get_db, init_db
+from api.app.repo.database import get_db, init_db, SessionLocal
 from api.app.repo.order_repository import OrderRepository
 from api.app.repo.trade_repository import TradeRepository
 from api.app.services.order_service import OrderService
 from api.app.models.dtos import OrderCreate, OrderResponse, TradeResponse
 from api.brokers.broker_interface import BrokerInterface
 from api.brokers.mock_broker import MockBroker
+from api.app.repo.seed_data import seed_database
 from typing import List
 
 app = FastAPI(title="OMS API")
@@ -26,6 +27,11 @@ app.add_middleware(
 @app.on_event("startup")
 def startup_event():
     init_db()
+    db = SessionLocal()
+    try:
+        seed_database(db)
+    finally:
+        db.close()
 
 @app.get("/")
 def read_root():

@@ -2,23 +2,6 @@
 # Project description
 This project is to create a simple prototype of an order management system for a hedge fund
 
-# General Project Architecture
-/client
-    /src
-        /pages
-        /components
-    app.ts
-/api
-    requirements.txt
-    start.sh
-    /app
-        main.py # all routes go here, injects services layer as dependency
-        /models # pydantic dtos
-        /repo # repo layer classes
-            database.py # SQLAlchemy engine + Sqlite setup
-        /services # business logic, injects repo layer as dependency
-    /tests # unit testing for functions in services layer
-
 # Tech Stack
 - Front end: A simple ReactJs project using javascript, Highcharts, and Ant Design
 - Backend: FastAPI

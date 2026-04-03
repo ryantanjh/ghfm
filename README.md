@@ -1,26 +1,112 @@
-Order lifecycle workflow
+# Order Management System (OMS) Prototype
 
-1. User creates an order in the UI, sends order to backend REST API endpoint
-2. Backend service logs order in database with status NEW
-3. Service does pre-flight validation check: If validation check passes, then order is sent to exchange
-* In production, one workflow is that a PM enters a NEW order, but we only want to send it after certain conditions and internal checks pass
-In this case, an order can remain in NEW state until it gets cancelled by manager, or when it gets executed. 
-To implement this, We need a background worker to continuously poll the database for NEW orders, and validate them before sending the order to the exchange
-However in the mock workflow for simplicaity purposes, we just automatically assume that when symbol is AAPL, it fails the internal validation check and remains in NEW statte
-4. Order is sent to broker, update order status to sent
-5. Wait for response from broker: 
-- update order status to failure, fill, or partial fill
-- if broker response is fill or partial fill, we also update our internal trade records with the trade
-* in production, we cannot update our internal order status records based on the rest api order response of the broker due to partial fills
-* for example, if we send a limit order via rest api and its response says it is partial filled, how would we know when the rest is filled? 
-* 2 ways: 
-1. If we want to use REST API, we continously poll the broker's REST API to check on the status of each order we went, and updating our internal db 
-2. We open a live connection (typically websocket or FIX) where we listen for updates from the exchange on updates to our order
-For example, if our order is broken down into 3 partial fills, the exchange would send 3 updates via this socket connection, and our system should
-listen to this connection and update the internal records accordingly. In FIX protocol this is done via the Execution report message from the exchange. 
-Our system will listen for these messages and update our internal order and trade records accordingly
+## Overview
 
+This prototype demonstrates a simplified electronic trading workflow from order creation through execution. The system implements order validation, lifecycle management, simulated broker integration, and basic trade storage.
 
+## Running the Prototype
 
+```bash
+./start.sh
+```
 
-    
+This single command:
+- Installs all required Python and Node.js dependencies
+- Seeds the database with example data
+- Starts the backend server on `http://localhost:8000`
+- Starts the frontend UI on `http://localhost:3000`
+
+## Order Lifecycle Workflow
+
+### Prototype Implementation
+
+1. **Order Creation**: User submits an order via the UI, which calls the backend REST API endpoint
+2. **Database Logging**: Backend service creates an order record with status `NEW`
+3. **Internal Validation**: System performs pre-flight validation checks
+   - **Pass**: Order status updated to `SENT` and forwarded to broker
+   - **Fail**: Order remains in `NEW` state
+4. **Broker Submission**: Order is sent to the broker
+5. **Execution Response**: Broker returns execution status
+   - Update order status to `REJECTED`, `FILLED`, or `PARTIAL_FILL`
+   - Create trade records for filled/partial fills
+
+### Mock Workflows
+
+The prototype includes 4 demonstrable scenarios:
+
+| Scenario | Trigger | Result |
+|----------|---------|--------|
+| **Validation Failure** | Symbol = `AAPL` | Order remains `NEW` (simulates failed internal checks) |
+| **Broker Rejection** | Order value > $1,000,000 | Status = `REJECTED`, reason = "Insufficient balance" |
+| **Full Fill** | Symbol = `DBS`, even quantity | Status = `FILLED`, trade record created |
+| **Partial Fill** | Symbol = `DBS`, odd quantity | Status = `PARTIAL_FILL`, partial trade record created |
+
+### Simplifications vs. Production
+
+#### 1. Order Validation (Synchronous vs. Asynchronous)
+
+**Prototype**: Validation happens immediately when the order is submitted. Orders that fail validation (e.g., AAPL symbol) remain in `NEW` state.
+
+**Production**: Orders are validated asynchronously by background workers:
+- Portfolio Managers create orders that remain in `NEW` state until certain conditions are met
+- Background workers continuously poll for `NEW` orders and validate against real-time market data, risk limits, and compliance rules
+- Orders may remain `NEW` for extended periods until validated, executed, or cancelled by a manager
+
+#### 2. Order Status Updates (REST API vs. Persistent Connections)
+
+**Prototype**: Order status is updated immediately based on the broker's REST API response (single request/response).
+
+**Production Challenge**: REST API responses are insufficient for tracking partial fills. If an order is partially filled, we need to continue to listen for updates on when the remaining order is filled
+
+**Production Solutions**:
+
+1. **Continuous Polling**: Periodically query the broker's REST API to check order status and update internal records. This is inefficient and has latency issues.
+
+2. **Persistent Connection (Recommended)**: Establish a live connection (WebSocket or FIX protocol) to receive real-time updates from the broker:
+   - Broker sends execution reports as orders are filled
+   - Example: An order filled in 3 chunks triggers 3 separate partial fill messages over the connection
+   - Our system listens continuously and updates order/trade records in real-time
+   - In FIX protocol, this is handled via Execution Report messages from the exchange
+
+The prototype uses approach #1 (simulated single response) for simplicity, while production systems would implement approach #2 for real-time, event-driven updates.
+
+## Architecture
+
+```
+Frontend (React)  →  Backend API (FastAPI)  →  Database (SQLite)
+                             ↓
+                       Broker Interface
+                             ↓
+                      Mock Broker (Simulated)
+```
+
+**Technology Stack**:
+- **Frontend**: React.js with Ant Design UI components
+- **Backend**: FastAPI (Python)
+- **Database**: SQLite with SQLAlchemy ORM
+- **Broker Integration**: Mock broker class (simulates REST API responses)
+
+## Testing
+
+```bash
+cd api
+pytest tests/
+```
+
+The test suite includes:
+- Unit tests for order service business logic
+- Integration tests for all 4 mock workflow scenarios
+- End-to-end verification of order and trade database records
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Health check |
+| POST | `/send_limit_order` | Create new limit order |
+| GET | `/orders` | Retrieve all orders |
+| GET | `/trades` | Retrieve all trades |
+
+---
+
+**Design Note**: This prototype prioritizes clarity and workflow demonstration over production-grade complexity. The core architecture and order lifecycle patterns are production-ready, while broker integration and validation processes are simplified for the scope of this exercise.

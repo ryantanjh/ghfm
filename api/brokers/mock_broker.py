@@ -1,6 +1,7 @@
 from api.app.models.dtos import BrokerOrderResponse
+from api.brokers.broker_interface import BrokerInterface
 
-class MockBroker:
+class MockBroker(BrokerInterface):
     ACCOUNT_BALANCE = 1000000.0
 
     def send_order(self, broker: str, symbol: str, order_type: str, price: float, qty: int) -> BrokerOrderResponse:

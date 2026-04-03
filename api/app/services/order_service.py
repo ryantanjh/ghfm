@@ -1,14 +1,14 @@
 from api.app.repo.order_repository import OrderRepository
 from api.app.repo.trade_repository import TradeRepository
 from api.app.models.dtos import OrderCreate, OrderResponse
-from api.brokers.mock_broker import MockBroker
+from api.brokers.broker_interface import BrokerInterface
 from typing import List
 
 class OrderService:
-    def __init__(self, order_repo: OrderRepository, trade_repo: TradeRepository):
+    def __init__(self, order_repo: OrderRepository, trade_repo: TradeRepository, broker: BrokerInterface):
         self.order_repo = order_repo
         self.trade_repo = trade_repo
-        self.broker = MockBroker()
+        self.broker = broker
 
     def _validate_order(self, order_data: OrderCreate) -> bool:
         if order_data.symbol == "AAPL":

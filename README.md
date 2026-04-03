@@ -119,3 +119,12 @@ The test suite includes:
 
 **Relational Database**: SQL databases ensure ACID compliance for financial transactions, support complex queries across orders and trades, and maintain referential integrity through foreign key constraints.
 
+## Trade Reconciliation
+
+**Prototype**: Trade records are created immediately upon order execution and stored in the database without external validation.
+
+**Production**: Brokers typically send end-of-day (EOD) trade history reports. Production systems would:
+- Schedule automated jobs to download EOD trade reports from brokers
+- Compare broker-reported trades against internal database records
+- Flag discrepancies for manual review (e.g., missing trades, mismatched quantities/prices)
+- Generate reconciliation reports for compliance and audit purposes

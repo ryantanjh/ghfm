@@ -56,7 +56,7 @@ Feature 1: API /POST send_limit_order. User creates a limit order in our OMS sys
        - Update Orders table with order status
      - If fail internal validation check: order status remains as NEW
   3. Update trade table
-     - If order response if FILL or PARTIAL FILL, update trades table with Trade details from the broker API response
+     - If order response is FILL or PARTIAL FILL, update trades table with Trade details from the broker API response
 
 Feature 2: Mock workflows
 1. Order remains in NEW state

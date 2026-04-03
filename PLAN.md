@@ -1,87 +1,91 @@
 # PLAN
 
-## Db schema 
-Orders table
-- order id
-- broker
-- symbol
-- order type
-- price
-- qty
-- order status
-- rejection reason
+## Database Schema
+Orders Table
+- Order ID
+- Broker
+- Symbol
+- Order Type
+- Price
+- Quantity
+- Order Status
+- Rejection Reason
 
-Trades table
-- Order id
-- trade id
-- broker
-- symbol
-- fill qty
-- fill price
-- timestamp
+Trades Table
+- Order ID
+- Trade ID
+- Broker
+- Symbol
+- Fill Quantity
+- Fill Price
+- Timestamp
 
 # General Project Architecture
-/client
-    /src
-        /pages
-        /components
-    app.ts
-/api
-    requirements.txt
-    start.sh
-    /app
-        main.py # all routes go here, injects services layer as dependency
-        /models # pydantic dtos
-        /repo # repo layer classes
-            database.py # SQLAlchemy engine + Sqlite setup
-        /services # business logic, injects repo layer as dependency
-    /tests # unit testing for functions in services layer
-    /brokers # classes simulating API calls to broker REST API endpoints. It should only accomodate cases for the mock workflow
+
+## Directory Structure
+
+### Client (`/client`)
+- **`/src`**
+  - `/pages` - Page components
+  - `/components` - Reusable UI components
+- **`app.ts`** - Main application entry point
+
+### API (`/api`)
+- **`requirements.txt`** - Python dependencies
+- **`start.sh`** - Application startup script
+- **`/app`**
+  - **`main.py`** - API routes and endpoints (injects services layer as dependency)
+  - **`/models`** - Pydantic DTOs
+  - **`/repo`** - Repository layer classes
+    - `database.py` - SQLAlchemy engine + SQLite setup
+  - **`/services`** - Business logic layer (injects repo layer as dependency)
+- **`/tests`** - Unit tests for services layer functions
+- **`/brokers`** - Mock broker API clients (simulates broker REST API endpoints for mock workflows)
 
 
-## Features 
-Feature 1: API /POST send_limit_order. User creates a limit order in our OMS system
-- As a user, i should be able to create an order with the following details
-  - broker
-  - symbol
-  - order type (assert it is only limit)
-  - price
-  - qty
-- What happens in the OMS service handler: 
-  1. Store order in order database as NEW
-  2. Do internal validation check (for now do nothing)
-     -  If pass internal validation check:
-       - Update Order status updated to SENT
-       - Send order to mock broker and read broker response on order status, which can be FILL, PARTIAL_FILL, REJECTION
-       - Update Orders table with order status
-     - If fail internal validation check: order status remains as NEW
-  3. Update trade table
-     - If order response is FILL or PARTIAL FILL, update trades table with Trade details from the broker API response
+## Features
+Feature 1: API /POST send_limit_order - User creates a limit order in the OMS system
+- As a user, I should be able to create an order with the following details:
+  - Broker
+  - Symbol
+  - Order Type (assert it is only limit)
+  - Price
+  - Quantity
+- OMS service handler workflow:
+  1. Store order in the order database with status NEW
+  2. Perform internal validation check (for now, do nothing)
+     - If internal validation check passes:
+       - Update the order's order_status field in the database to SENT and send order to mock broker via REST API
+       - Read broker response on order status, which can be either FILL, PARTIAL_FILL, or REJECTION
+       - Update the order's order_status field in the database to the response order status
+     - If internal validation check fails: order status remains as NEW
+  3. Update trades table
+     - If order response is FILL or PARTIAL_FILL, update trades table with trade details from the broker API response
 
-Feature 2: Mock workflows
+Feature 2: Mock Workflows
 1. Order remains in NEW state
 - User creates a new order in the UI for AAPL stock for IBKR
-- This order should always remain in NEW state, reason being it has failed internal validation check
+- This order should always remain in NEW state because it has failed the internal validation check
 
 2. Order sent but rejected by broker
 - User has an account balance of 1 million USD
-- User creates a new order in the UI for DBS stock for IBKR at qty = 1 million which exceeds balance
-- Mock broker API returns Rejection message due "insufficient balance"
+- User creates a new order in the UI for DBS stock for IBKR at quantity = 1 million, which exceeds balance
+- Mock broker API returns rejection message due to "insufficient balance"
 - Update order status accordingly
 
-3. Order Sent and Filled fully
-- User creates a new order in the UI for DBS stock for IBKR that does not exceed account balance threshold
-- User gets a response for FILL
-- User should be able to see updated order status and trade records in UI
+3. Order sent and filled fully
+- User creates a new order in the UI for DBS stock for IBKR that does not exceed the account balance threshold
+- User receives a response for FILL
+- User should be able to see updated order status and trade records in the UI
 
-4. Order Sent and Partial Fill
-- User creates a new order in the UI for DBS stock for IBKR that does not exceed account threshold
-- User gets a response for Partial fill
-- User should be able to see updated order status and trade records in UI
+4. Order sent and partial fill
+- User creates a new order in the UI for DBS stock for IBKR that does not exceed the account threshold
+- User receives a response for partial fill
+- User should be able to see updated order status and trade records in the UI
 
 Feature 3: UI
 - OMS page: User should be able to submit an order via a form based on the above workflow scenarios
-- Orders / Trades view page: User should be able to view current status of all orders and trades from internal db
+- Orders/Trades view page: User should be able to view the current status of all orders and trades from the internal database
 
 
 

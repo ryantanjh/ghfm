@@ -40,8 +40,35 @@
   - Frontend running successfully on http://localhost:3000
   - Database initialization working
 
+### Feature 1: Order Flow with Validation and Broker Integration (Completed)
+- Implemented complete order lifecycle in OrderService:
+  - Orders created with initial status NEW
+  - Internal validation logic (_validate_order method) - AAPL orders fail validation
+  - Successful validation updates status to SENT before broker submission
+  - Only LIMIT order type supported (assertion enforced)
+
+- Enhanced MockBroker with business logic:
+  - Account balance validation (1M USD limit)
+  - Orders exceeding balance return REJECTED status with "Insufficient balance" reason
+  - DBS symbol orders simulate realistic responses:
+    - Even quantity orders: FILLED status with full fill
+    - Odd quantity orders: PARTIAL_FILL status with half quantity filled
+  - Other symbols return SENT status (no fill)
+
+- Implemented order status updates based on broker response:
+  - REJECTED: Updates order status and records rejection reason
+  - FILLED: Updates status and creates trade record with fill details
+  - PARTIAL_FILL: Updates status and creates trade record with partial fill
+
+- Created comprehensive test suite (api/tests/test_order_service.py):
+  - test_create_order_aapl_fails_validation: Verifies AAPL orders remain in NEW status
+  - test_create_order_rejected_insufficient_balance: Tests balance validation
+  - test_create_order_filled: Verifies full fill scenario with trade creation
+  - test_create_order_partial_fill: Tests partial fill with trade creation
+  - test_create_order_non_limit_type_fails: Validates LIMIT-only assertion
+  - All 5 tests passing
+
 ## Next Steps
-Ready to implement features from PLAN.md:
-- Feature 1: Complete the send_limit_order implementation with validation and broker integration
-- Feature 2: Implement the 4 mock workflows
-- Feature 3: Build the UI components
+Ready to implement remaining features from PLAN.md:
+- Feature 2: Implement the 4 mock workflows (UI integration testing)
+- Feature 3: Build the UI components (order form, orders/trades view)

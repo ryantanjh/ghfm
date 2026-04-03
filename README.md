@@ -110,3 +110,12 @@ The test suite includes:
 ---
 
 **Design Note**: This prototype prioritizes clarity and workflow demonstration over production-grade complexity. The core architecture and order lifecycle patterns are production-ready, while broker integration and validation processes are simplified for the scope of this exercise.
+
+## Design Choices
+
+**Layered Architecture**: The backend separates business logic (services), data access (repositories), and API endpoints into distinct layers, enabling independent testing and easier maintenance.
+
+**Repository Pattern**: Database operations are abstracted through a repository layer, allowing the underlying database implementation to be replaced without modifying business logic.
+
+**Relational Database**: SQL databases ensure ACID compliance for financial transactions, support complex queries across orders and trades, and maintain referential integrity through foreign key constraints.
+

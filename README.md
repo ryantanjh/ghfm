@@ -89,8 +89,7 @@ Frontend (React)  →  Backend API (FastAPI)  →  Database (SQLite)
 ## Testing
 
 ```bash
-cd api
-pytest tests/
+python -m pytest api/tests/
 ```
 
 The test suite includes:
@@ -109,15 +108,13 @@ The test suite includes:
 
 ---
 
-**Design Note**: This prototype prioritizes clarity and workflow demonstration over production-grade complexity. The core architecture and order lifecycle patterns are production-ready, while broker integration and validation processes are simplified for the scope of this exercise.
-
 ## Design Choices
 
 **Layered Architecture**: The backend separates business logic (services), data access (repositories), and API endpoints into distinct layers, enabling independent testing and easier maintenance.
 
 **Repository Pattern**: Database operations are abstracted through a repository layer, allowing the underlying database implementation to be replaced without modifying business logic.
 
-**Relational Database**: SQL databases ensure ACID compliance for financial transactions, support complex queries across orders and trades, and maintain referential integrity through foreign key constraints.
+**Relational Database**: SQL databases support complex queries across orders and trades, and maintain referential integrity through foreign key constraints.
 
 ## Trade Reconciliation
 
@@ -133,9 +130,8 @@ The test suite includes:
 
 **Prototype**: The UI includes a trade report export feature that generates CSV files from internal trade records. Users can download complete trade history via the Trades page.
 
-**Production**: Trade files for prime brokers and fund administrators would be generated through scheduled batch processes:
+**Production**: Trade files for prime brokers and fund administrators would be generated through scheduled cron jobs:
 - Automated daily/monthly reports aggregating trade activity by broker, strategy, or account
-- Standardized file formats (CSV, FIX, proprietary) based on counterparty requirements
 - Position reconciliation reports comparing internal records against prime broker statements
 
 

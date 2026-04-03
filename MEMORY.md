@@ -96,6 +96,57 @@
   - Follows dependency inversion principle - OrderService depends on abstraction, not concrete implementation
   - Ready for Feature 3 UI integration - all 4 workflows tested and working
 
-## Next Steps
-Ready to implement remaining features from PLAN.md:
-- Feature 3: Build the UI components (order form, orders/trades view)
+### Feature 3: UI for Order Management System (Completed)
+- Created OrderForm component (client/src/components/OrderForm.js):
+  - Form with fields: broker (select), symbol (text), order type (LIMIT only), price (number), quantity (number)
+  - Form validation with required fields and proper input types
+  - Axios POST integration to /send_limit_order endpoint
+  - Success/error messages using Ant Design message component
+  - Automatic form reset after successful submission
+  - Triggers parent refresh callback to update orders/trades views
+
+- Created OrdersView component (client/src/components/OrdersView.js):
+  - Table displaying all orders from database via GET /orders endpoint
+  - Columns: Order ID, Broker, Symbol, Type, Price, Quantity, Status, Rejection Reason
+  - Color-coded status tags for visual clarity:
+    - NEW (blue), SENT (cyan), FILLED (green), PARTIAL_FILL (orange), REJECTED (red)
+  - Manual refresh button with loading state
+  - Automatic refresh when new orders are submitted via refreshTrigger prop
+  - Pagination (10 items per page)
+  - Formatted price display ($XX.XX)
+
+- Created TradesView component (client/src/components/TradesView.js):
+  - Table displaying all trades from database via GET /trades endpoint
+  - Columns: Trade ID, Order ID, Broker, Symbol, Fill Price, Fill Quantity, Timestamp
+  - Manual refresh button with loading state
+  - Automatic refresh when new orders create trades via refreshTrigger prop
+  - Pagination (10 items per page)
+  - Formatted price display and human-readable timestamps
+
+- Updated App.js with navigation and routing:
+  - Navigation menu with 3 pages: Create Order, Orders, Trades
+  - Menu items with icons using Ant Design icons
+  - State management for current page selection
+  - Refresh trigger state to coordinate data updates across components
+  - handleOrderSubmitted callback passed to OrderForm to trigger data refresh
+  - Responsive layout with Ant Design Layout components
+
+- All 4 mock workflows are now fully functional via UI:
+  1. AAPL order validation failure: Symbol=AAPL → stays in NEW status
+  2. Insufficient balance rejection: Symbol=DBS, Price×Qty > $1M → REJECTED
+  3. Full fill: Symbol=DBS, even quantity → FILLED with trade record
+  4. Partial fill: Symbol=DBS, odd quantity → PARTIAL_FILL with trade record (fill_qty = qty ÷ 2)
+
+- Application fully running:
+  - Frontend: http://localhost:3000
+  - Backend: http://localhost:8000
+  - CORS enabled for cross-origin requests
+  - Real-time data updates between form submission and data views
+
+## Project Complete
+All features from PLAN.md have been implemented:
+- ✅ Feature 1: Order flow with validation and broker integration
+- ✅ Feature 2: Broker dependency injection with mock workflows
+- ✅ Feature 3: UI for order management and data visualization
+
+The OMS prototype is now fully functional with a working UI for all 4 mock workflows.

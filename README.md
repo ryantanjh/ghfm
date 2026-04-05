@@ -21,14 +21,14 @@ This single command:
 ### Prototype Implementation
 
 1. **Order Creation**: User submits an order via the UI, which calls the backend REST API endpoint
-2. **Database Logging**: Backend service creates an order record in the Orders table in the database with status `NEW`
+2. **Database Logging**: Backend service creates an order record in database's **Orders table** with status `NEW`
 3. **Internal Validation**: System performs pre-flight validation checks
    - **Pass**: Order status updated to `SENT` and forwarded to broker
    - **Fail**: Order remains in `NEW` state
 4. **Broker Submission**: Order is sent to the broker
 5. **Execution Response**: Broker returns execution status
    - Update order status to `REJECTED`, `FILLED`, or `PARTIAL_FILL`
-   - Create trade records for filled/partial fills
+   - Create trade records in database's **Trades table** for filled/partial fills
 
 ### Mock Workflows
 

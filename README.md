@@ -21,7 +21,7 @@ This single command:
 ### Prototype Implementation
 
 1. **Order Creation**: User submits an order via the UI, which calls the backend REST API endpoint
-2. **Database Logging**: Backend service creates an order record with status `NEW`
+2. **Database Logging**: Backend service creates an order record in the Orders table in the database with status `NEW`
 3. **Internal Validation**: System performs pre-flight validation checks
    - **Pass**: Order status updated to `SENT` and forwarded to broker
    - **Fail**: Order remains in `NEW` state

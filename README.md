@@ -43,14 +43,11 @@ The prototype includes 4 demonstrable scenarios:
 
 ### Simplifications vs. Production
 
-#### 1. Order Validation (Synchronous vs. Asynchronous)
+#### 1. Order Validation
 
-**Prototype**: Validation happens immediately when the order is submitted. Orders that fail validation (e.g., AAPL symbol) remain in `NEW` state.
+**Prototype**: Order validation logic is simplified. Orders for symbol `AAPL` immediately fail validation and remain in `NEW` state. All other orders pass validation.
 
-**Production**: Orders are validated asynchronously by background workers:
-- Portfolio Managers create orders that remain in `NEW` state until certain conditions are met
-- Background workers continuously poll for `NEW` orders and validate against real-time market data, risk limits, and compliance rules
-- Orders may remain `NEW` for extended periods until validated, executed, or cancelled by a manager
+**Production**: Order validation involves comprehensive checks including risk limits, position constraints, and portfolio-level logic. Upon successful validation, the order is transmitted to the broker and status transitions from `NEW` to `SENT`.
 
 #### 2. Order Status Updates (REST API vs. Persistent Connections)
 
@@ -128,7 +125,7 @@ The test suite includes:
 
 ## Trade File Generation for Prime Brokers and Fund Administrators
 
-**Prototype**: The UI includes a trade report export feature that generates CSV files from internal trade records. Users can download complete trade history via the Trades page.
+**Prototype**: The UI includes a trade report export feature that generates CSV files from internal trade records. Users can download complete trade history via the Trades page. This trade history is based on trades stored in the internal database.
 
 **Production**: Trade files for prime brokers and fund administrators would be generated through scheduled cron jobs:
 - Automated daily/monthly reports aggregating trade activity by broker, strategy, or account
@@ -143,4 +140,12 @@ The test suite includes:
 - **Auto-scaling databases**: Cloud-hosted relational databases (RDS, Cloud SQL) can scale storage and compute automatically, but incur significant costs at scale
 - **Data archival strategy**: Archive historical data (e.g., previous financial years) to low-cost storage solutions (S3, cold storage) while maintaining a lean operational database for active trading periods
 - **Partitioning**: Implement time-based table partitioning to improve query performance and simplify archival processes
+
+**Prototype**: Single SQLite database instance without backup mechanisms. Data is vulnerable to local disk corruption or hardware failure.
+
+**Production**: Cloud database services (e.g., Amazon RDS, Google Cloud SQL) provide automated backup and point-in-time recovery capabilities to ensure data durability.
+
+**Prototype**: Single mock broker implementation for testing order workflows.
+
+**Production**: Multi-broker integration supporting portfolio manager selection at order creation. Each broker requires custom connectors due to varying API specifications and protocols.
 

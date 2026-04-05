@@ -134,16 +134,22 @@ The test suite includes:
 
 ## Production Scalability
 
-**Prototype**: All historical orders and trades remain in the SQLite database indefinitely.
+#### 1. Database Growth Management
+
+**Prototype**: All historical orders and trades remain in the SQLite database indefinitely. As data size grows, data query time increases as well
 
 **Production**: As trade and order data accumulates over time, database growth requires strategic management:
 - **Auto-scaling databases**: Cloud-hosted relational databases (RDS, Cloud SQL) can scale storage and compute automatically, but incur significant costs at scale
 - **Data archival strategy**: Archive historical data (e.g., previous financial years) to low-cost storage solutions (S3, cold storage) while maintaining a lean operational database for active trading periods
 - **Partitioning**: Implement time-based table partitioning to improve query performance and simplify archival processes
 
+#### 2. Database Backup and Disaster Recovery
+
 **Prototype**: Single SQLite database instance without backup mechanisms. Data is vulnerable to local disk corruption or hardware failure.
 
 **Production**: Cloud database services (e.g., Amazon RDS, Google Cloud SQL) provide automated backup and point-in-time recovery capabilities to ensure data durability.
+
+#### 3. Multi-Broker Integration
 
 **Prototype**: Single mock broker implementation for testing order workflows.
 
